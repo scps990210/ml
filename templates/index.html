@@ -3,151 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>情感分析系統</title>
+    <title>情感分析 - AI 智能分析平台</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #cc315f 0%, #ceee1c 100%);
             min-height: 100vh;
             color: #333;
         }
-        
+
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
         }
-        
-        h2 {
+
+        /* 導航欄 */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: #4f46e5;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a:hover {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        /* 主標題 */
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
             text-align: center;
-            color: #4a5568;
-            margin-bottom: 30px;
-            font-size: 2.2em;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
-        
-        .form-group {
-            margin-bottom: 20px;
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            font-weight: 300;
         }
-        
+
+        /* 表單卡片 */
+        .form-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 1.1rem;
+        }
+
         textarea {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            resize: vertical;
-            box-sizing: border-box;
+            height: 160px;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 1.25rem;
+            font-size: 1rem;
             font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: #fafbfc;
         }
-        
+
         textarea:focus {
+            border-color: #4f46e5;
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 25px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: block;
-            margin: 0 auto;
-        }
-        
-        .submit-btn:hover {
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            background: #ffffff;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        
-        .result {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-        
-        .result.positive {
-            background: #f0fff4;
-            color: #22543d;
-            border: 2px solid #68d391;
-        }
-        
-        .result.negative {
-            background: #fff5f5;
-            color: #742a2a;
-            border: 2px solid #fc8181;
-        }
-        
-        .confidence {
-            font-size: 0.8em;
-            margin-top: 10px;
-            opacity: 0.8;
-        }
-        
-        .error {
-            background: #fed7d7;
-            color: #c53030;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        .example {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f7fafc;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .example h4 {
-            margin: 0 0 10px 0;
-            color: #4a5568;
-        }
-        
-        .example-text {
-            color: #718096;
+
+        textarea::placeholder {
+            color: #9ca3af;
             font-style: italic;
-            cursor: pointer;
-            margin: 5px 0;
-            padding: 5px;
-            border-radius: 4px;
-            transition: background 0.2s;
         }
-        
-        .example-text:hover {
-            background: #edf2f7;
+
+        .button-container {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        button {
+            padding: 1rem 3rem;
+            border: none;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(79, 70, 229, 0.4);
+            background: linear-gradient(135deg, #3730a3, #6d28d9);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        /* 結果卡片 */
+        .result {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .result-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .positive .result-icon {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .negative .result-icon {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .neutral .result-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .meta {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background: rgba(243, 244, 246, 0.5);
+            border-radius: 12px;
+            border-left: 4px solid #e5e7eb;
+        }
+
+        .error {
+            background: rgba(254, 226, 226, 0.9);
+            color: #dc2626;
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-top: 1.5rem;
+            font-weight: 500;
+            border-left: 4px solid #dc2626;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 20%, 40%, 60%, 80%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🤖 智慧情感分析系統</h2>
-        
-        <form method="post">
-            <div class="form-group">
+        <nav>
+            <a href="/">🏠 首頁</a>
+            <a href="/ab_test">🔬 A/B測試</a>
+            <a href="/dashboard">📊 儀表板</a>
+            <a href="/model_comparison">⚖️ 模型比較</a>
+        </nav>
+
+        <h1>🧠 情感分析</h1>
+        <p class="subtitle">運用 AI 技術深度解析文字背後的情感色彩</p>
+
+        <div class="form-card">
+            <form method="post">
+                <label for="review">✍️ 輸入待分析文字：</label>
                 <textarea 
+                    id="review" 
                     name="review" 
-                    rows="5" 
-                    placeholder="請輸入您想要分析的文字內容... 例如：電影評論、產品評價、社群貼文等"
-                    required
-                >{{ request.form.review if request.form.review }}</textarea>
-            </div>
-            
-            <button type="submit" class="submit-btn">🔍 開始分析</button>
-        </form>
+                    placeholder="在此輸入您想要分析情感的文字內容..."
+                >{% if text %}{{ text }}{% endif %}</textarea>
+                <div class="button-container">
+                    <button type="submit">🚀 開始分析</button>
+                </div>
+            </form>
+        </div>
 
         {% if error_message %}
             <div class="error">
@@ -156,39 +275,22 @@
         {% endif %}
 
         {% if prediction %}
-            <div class="result {{ 'positive' if 'Positive' in prediction else 'negative' }}">
-                <div>{{ prediction }}</div>
+            <div class="result {% if 'positive' in prediction|lower %}positive{% elif 'negative' in prediction|lower %}negative{% else %}neutral{% endif %}">
+                <div class="result-title">
+                        {% if 'positive' in prediction|lower %}
+                        {% elif 'negative' in prediction|lower %}
+                        {% else %}
+                        {% endif %}
+                    分析結果：{{ prediction }}
+                </div>
                 {% if confidence %}
-                    <div class="confidence">{{ confidence }}</div>
+                    <div class="meta">📈 {{ confidence }}</div>
+                {% endif %}
+                {% if model_info %}
+                    <div class="meta">🤖 {{ model_info }}</div>
                 {% endif %}
             </div>
         {% endif %}
-        
-        <div class="example">
-            <h4>💡 範例文字 (點擊可快速填入):</h4>
-            <div class="example-text" onclick="fillText('This movie is absolutely amazing and wonderful! Best film ever!')">
-                📝 正面範例：This movie is absolutely amazing and wonderful! Best film ever!
-            </div>
-            <div class="example-text" onclick="fillText('Terrible movie, waste of time. I hate it so much.')">
-                📝 負面範例：Terrible movie, waste of time. I hate it so much.
-            </div>
-            <div class="example-text" onclick="fillText('這部電影還不錯，值得一看。演員表現很好。')">
-                📝 中文範例：這部電影還不錯，值得一看。演員表現很好。
-            </div>
-        </div>
     </div>
-
-    <script>
-        function fillText(text) {
-            document.querySelector('textarea[name="review"]').value = text;
-        }
-        
-        // 自動調整文字區域高度
-        const textarea = document.querySelector('textarea');
-        textarea.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.max(this.scrollHeight, 120) + 'px';
-        });
-    </script>
 </body>
 </html>
