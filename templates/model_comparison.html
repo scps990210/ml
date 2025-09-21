@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模型比較 - AI 智能分析平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #cc315f 0%, #ceee1c 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* 導航欄 */
+        nav {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 1rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        nav a {
+            color: #4f46e5;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a:hover, nav a.active {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(79,70,229,0.3);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        h3 {
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .muted {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(243,244,246,0.8);
+            font-weight: 600;
+        }
+
+        tr:not(:last-child) td {
+            border-bottom: 1px solid rgba(229,231,235,0.5);
+        }
+
+        .error {
+            background: rgba(254,226,226,0.9);
+            color: #dc2626;
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-top: 1.5rem;
+            font-weight: 500;
+            border-left: 4px solid #dc2626;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%,20%,40%,60%,80%,100% { transform: translateX(0); }
+            10%,30%,50%,70%,90% { transform: translateX(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/">🏠 首頁</a>
+            <a href="/ab_test">🔬 A/B測試</a>
+            <a href="/dashboard">📊 儀表板</a>
+            <a href="/model_comparison" class="active">⚖️ 模型比較</a>
+        </nav>
+
+        <h1>⚖️ 模型比較</h1>
+
+        {% if error %}
+            <div class="error">❌ 錯誤：{{ error }}</div>
+        {% endif %}
+
+        <div class="card">
+            <strong>最佳模型：</strong>
+            {% if performance_data and performance_data.best_model %}
+                {{ performance_data.best_model }}
+                <span class="muted">（訓練時間：{{ performance_data.training_date if performance_data.training_date else '-' }}）</span>
+            {% else %}
+                <span class="muted">尚無資料，請先執行訓練流程</span>
+            {% endif %}
+        </div>
+
+        <h3>模型指標</h3>
+        {% if performance_data and performance_data.performances %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>模型</th>
+                        <th>Accuracy</th>
+                        <th>F1</th>
+                        <th>AUC</th>
+                        <th>Precision(+)</th>
+                        <th>Precision(-)</th>
+                        <th>Recall(+)</th>
+                        <th>Recall(-)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, m in performance_data.performances.items() %}
+                        <tr>
+                            <td>{{ name }}</td>
+                            <td>{{ "%.3f"|format(m.accuracy) if m.accuracy is not none else '-' }}</td>
+                            <td>{{ "%.3f"|format(m.f1_score) if m.f1_score is not none else '-' }}</td>
+                            <td>{{ "%.3f"|format(m.auc_score) if m.auc_score is not none else '-' }}</td>
+                            <td>{{ "%.3f"|format(m.precision_pos) if m.precision_pos is not none else '-' }}</td>
+                            <td>{{ "%.3f"|format(m.precision_neg) if m.precision_neg is not none else '-' }}</td>
+                            <td>{{ "%.3f"|format(m.recall_pos) if m.recall_pos is not none else '-' }}</td>
+                            <td>{{ "%.3f"|format(m.recall_neg) if m.recall_neg is not none else '-' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="muted">尚無性能數據。</div>
+        {% endif %}
+    </div>
+</body>
+</html>

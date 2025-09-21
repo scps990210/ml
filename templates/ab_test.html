@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A/B 測試 - AI 智能分析平台</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #cc315f 0%, #ceee1c 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container { max-width:900px; margin:0 auto; padding:2rem 1rem; }
+        nav {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border:1px solid rgba(255,255,255,0.2);
+            padding:1rem 2rem;
+            border-radius:20px;
+            margin-bottom:2rem;
+            box-shadow:0 8px 32px rgba(0,0,0,0.1);
+            display:flex; justify-content:center; gap:2rem;
+        }
+        nav a {
+            color:#4f46e5; font-weight:600; text-decoration:none; padding:0.5rem 1rem;
+            border-radius:10px; transition:all 0.3s ease; position:relative;
+        }
+        nav a:hover {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed); color:white;
+            transform:translateY(-2px); box-shadow:0 4px 20px rgba(79,70,229,0.3);
+        }
+        h1 {
+            font-size:3rem; font-weight:800; text-align:center; margin-bottom:1rem;
+            background: linear-gradient(135deg,#ffffff,#e2e8f0);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            background-clip:text; text-shadow:0 4px 20px rgba(0,0,0,0.3);
+        }
+        .form-card, .result, .card {
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+            border:1px solid rgba(255,255,255,0.2); border-radius:24px;
+            padding:2rem; box-shadow:0 15px 50px rgba(0,0,0,0.1); margin-bottom:1.5rem;
+            position: relative; overflow:hidden;
+        }
+        .form-card::before, .result::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:4px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
+        }
+        label { display:block; margin-bottom:1rem; font-weight:600; color:#374151; font-size:1.1rem; }
+        textarea {
+            width:100%; height:160px; border:2px solid #e5e7eb; border-radius:16px;
+            padding:1.25rem; font-size:1rem; font-family:inherit; resize:vertical; transition:all 0.3s ease;
+            background:#fafbfc;
+        }
+        textarea:focus { border-color:#4f46e5; outline:none; box-shadow:0 0 0 4px rgba(79,70,229,0.1); background:#fff; transform:translateY(-2px);}
+        textarea::placeholder { color:#9ca3af; font-style:italic; }
+        .button-container { text-align:center; margin-top:2rem; }
+        button {
+            padding:1rem 3rem; border:none; background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color:#fff; font-weight:600; font-size:1.1rem; border-radius:50px; cursor:pointer; transition:all 0.3s ease;
+            box-shadow:0 8px 25px rgba(79,70,229,0.3); position:relative; overflow:hidden;
+        }
+        button::before {
+            content:''; position:absolute; top:0; left:-100%; width:100%; height:100%;
+            background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition:left 0.5s;
+        }
+        button:hover::before { left:100%; }
+        button:hover { transform:translateY(-3px); box-shadow:0 12px 35px rgba(79,70,229,0.4); background:linear-gradient(135deg, #3730a3, #6d28d9);}
+        button:active { transform:translateY(-1px); }
+        .grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem; }
+        @media (max-width:768px){ .grid { grid-template-columns:1fr; } }
+        .result-title { font-weight:700; font-size:1.5rem; margin-bottom:1rem; color:#1f2937; display:flex; align-items:center; gap:0.5rem; }
+        .meta { color:#6b7280; font-size:0.95rem; margin-top:0.5rem; padding:0.75rem; background: rgba(243,244,246,0.5); border-radius:12px; border-left:4px solid #e5e7eb; }
+        .error { background: rgba(254,226,226,0.9); color:#dc2626; padding:1.5rem; border-radius:16px; margin-top:1.5rem; font-weight:500; border-left:4px solid #dc2626; animation:shake 0.5s ease-in-out; }
+        @keyframes shake {
+            0%,20%,40%,60%,80%,100% { transform:translateX(0); }
+            10%,30%,50%,70%,90% { transform:translateX(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/">🏠 首頁</a>
+            <a href="/ab_test">🔬 A/B測試</a>
+            <a href="/dashboard">📊 儀表板</a>
+            <a href="/model_comparison">⚖️ 模型比較</a>
+        </nav>
+
+        <h1>🔬 A/B 測試</h1>
+
+        <div class="form-card">
+            <form method="post">
+                <label for="review">✍️ 輸入文字：</label>
+                <textarea id="review" name="review" placeholder="輸入文字以同時比較兩個模型...">{% if text %}{{ text }}{% endif %}</textarea>
+                <div class="button-container">
+                    <button type="submit">🚀 開始測試</button>
+                </div>
+            </form>
+        </div>
+
+        {% if error %}
+            <div class="error">❌ {{ error }}</div>
+        {% endif %}
+
+        {% if model_a and model_b and result_a and result_b %}
+            <div class="grid">
+                <div class="result">
+                    <div class="result-title">模型 A：{{ model_a }}</div>
+                    <div>預測：{{ '正面' if result_a.prediction == 1 else '負面' }}</div>
+                    <div class="meta">信心度：{{ "%.1f%%"|format(result_a.confidence * 100) }}</div>
+                    <div class="meta">延遲：{{ "%.1f ms"|format(result_a.latency * 1000) }}</div>
+                </div>
+                <div class="result">
+                    <div class="result-title">模型 B：{{ model_b }}</div>
+                    <div>預測：{{ '正面' if result_b.prediction == 1 else '負面' }}</div>
+                    <div class="meta">信心度：{{ "%.1f%%"|format(result_b.confidence * 100) }}</div>
+                    <div class="meta">延遲：{{ "%.1f ms"|format(result_b.latency * 1000) }}</div>
+                </div>
+            </div>
+
+            <div class="result">
+                <div class="result-title">比較結果</div>
+                <div>模型一致性：
+                    {% if result_a.prediction == result_b.prediction %}一致{% else %}不一致{% endif %}
+                </div>
+                <div>信心度差異：{{ "%.1f%%"|format(((result_a.confidence - result_b.confidence)|abs)*100) }}</div>
+                <div>較快者：
+                    {% if result_a.latency < result_b.latency %}模型 A{% elif result_b.latency < result_a.latency %}模型 B{% else %}相同{% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

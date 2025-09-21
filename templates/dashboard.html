@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儀表板 - AI 智能分析平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #cc315f 0%, #ceee1c 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* 導航欄 */
+        nav {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 1rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        nav a {
+            color: #4f46e5;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a:hover {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(79,70,229,0.3);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        h3 {
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+        }
+
+        .muted {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(243,244,246,0.8);
+            font-weight: 600;
+        }
+
+        tr:not(:last-child) td {
+            border-bottom: 1px solid rgba(229,231,235,0.5);
+        }
+
+        .error {
+            background: rgba(254,226,226,0.9);
+            color: #dc2626;
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-top: 1.5rem;
+            font-weight: 500;
+            border-left: 4px solid #dc2626;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%,20%,40%,60%,80%,100% { transform: translateX(0); }
+            10%,30%,50%,70%,90% { transform: translateX(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/">🏠 首頁</a>
+            <a href="/ab_test">🔬 A/B測試</a>
+            <a href="/dashboard">📊 儀表板</a>
+            <a href="/model_comparison">⚖️ 模型比較</a>
+        </nav>
+
+        <h1>📊 儀表板</h1>
+
+        {% if error %}
+            <div class="error">❌ 錯誤：{{ error }}</div>
+        {% endif %}
+
+        <h3>彙總</h3>
+        <div class="grid">
+            <div class="card">
+                <div>總預測</div>
+                <strong>{% if aggregates %}{{ aggregates.total_predictions }}{% else %}0{% endif %}</strong>
+            </div>
+            <div class="card">
+                <div>平均信心度</div>
+                <strong>{% if aggregates %}{{ "%.1f%%" | format(aggregates.avg_confidence * 100) }}{% else %}0%{% endif %}</strong>
+            </div>
+            <div class="card">
+                <div>平均延遲</div>
+                <strong>{% if aggregates %}{{ "%.1f ms" | format(aggregates.avg_latency_ms) }}{% else %}0 ms{% endif %}</strong>
+            </div>
+            <div class="card">
+                <div>正面比例</div>
+                <strong>{% if aggregates %}{{ "%.1f%%" | format(aggregates.positive_rate * 100) }}{% else %}0%{% endif %}</strong>
+            </div>
+        </div>
+
+        <h3>各模型統計</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>模型</th>
+                    <th>預測次數</th>
+                    <th>平均信心度</th>
+                    <th>平均延遲 (ms)</th>
+                    <th>正面率</th>
+                    <th>負面率</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if stats %}
+                    {% for name, s in stats.items() %}
+                        <tr>
+                            <td>{{ name }}</td>
+                            <td>{{ s.total_predictions }}</td>
+                            <td>{{ "%.3f" | format(s.avg_confidence) }}</td>
+                            <td>{{ "%.1f" | format(s.avg_latency * 1000) }}</td>
+                            <td>{{ "%.1f%%" | format(s.positive_rate * 100) }}</td>
+                            <td>{{ "%.1f%%" | format(s.negative_rate * 100) }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="6" class="muted">尚無統計數據</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
